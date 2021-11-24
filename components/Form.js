@@ -13,7 +13,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import shortid from "shortid";
 
 export default function Form(props) {
-  const { dates, setDates, setShowForm } = props;
+  const { dates, setDates, setShowForm, saveDatesStorage } = props;
   const [patient, setPatient] = useState("");
   const [owner, setOwner] = useState("");
   const [phone, setPhone] = useState("");
@@ -75,6 +75,8 @@ export default function Form(props) {
     date.id = shortid.generate();
     const newDates = [...dates, date];
     setDates(newDates);
+    saveDatesStorage(JSON.stringify(newDates));
+
     setShowForm(false);
   };
   const showAlert = () => {

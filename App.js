@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,22 +11,44 @@ import {
 } from "react-native";
 import Date from "./components/Date";
 import Form from "./components/Form";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function App() {
+  const [dates, setDates] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
-  const [dates, setDates] = useState([]);
+  useEffect(() => {
+    const getDatesStorage = async () => {
+      try {
+        const datesStorage = await AsyncStorage.getItem("dates");
+        if (datesStorage) {
+          setDates(JSON.parse(datesStorage));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getDatesStorage();
+  }, []);
 
   const deletePatient = (id) => {
-    setDates((currentDates) => {
-      return currentDates.filter((date) => date.id !== id);
-    });
+    const datesFilter = dates.filter((date) => date.id !== id);
+    setDates(datesFilter);
+    saveDatesStorage(JSON.stringify(datesFilter));
   };
   const showDateForm = () => {
     setShowForm(!showForm);
   };
   const closeKeyboard = () => {
     Keyboard.dismiss();
+  };
+
+  const saveDatesStorage = async (datesJSON) => {
+    try {
+      await AsyncStorage.setItem("dates", datesJSON);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -51,6 +73,7 @@ export default function App() {
                 dates={dates}
                 setDates={setDates}
                 setShowForm={setShowForm}
+                saveDatesStorage={saveDatesStorage}
               />
             </>
           ) : (
